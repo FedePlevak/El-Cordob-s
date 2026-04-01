@@ -1,0 +1,29 @@
+# Objetivo del Sistema: Trazabilidad de Facturas y Recepciones
+
+El sistema permite registrar lo que llega al local, validar la factura asociada, gestionar pagos y asegurar el cierre con el recibo del proveedor.
+
+## Flujo del Proceso
+1. **Recepción:** El personal del local registra la entrada (foto + datos mínimos).
+2. **Revisión Administrativa:** La administración valida la recepción contra la factura física/digital.
+3. **Estado de Pago:** Facturas validadas pasan a "Pendiente de Pago" con alertas de vencimiento (Semáforo).
+4. **Registro de Pago:** Se carga el pago con su comprobante.
+5. **Conciliación:** Se marca la imputación por parte del proveedor y se adjunta el recibo final para cerrar la operación.
+
+## Perfiles de Usuario
+- **Receptor:** Carga recepciones, toma fotos.
+- **Administrativa:** Valida, paga, concilia.
+- **Dueño:** Supervisa métricas y trazabilidad.
+
+## Estados Principales (Lenguaje Humano)
+- Para revisar (Gris)
+- Observada (Amarillo/Alerta)
+- Lista para pagar (Verde/Listo)
+- Pago enviado (Azul/Proceso)
+- Cerrada (Verde oscuro/Finalizado)
+
+## Módulos del MVP
+- Dashboard de métricas.
+- Registro de Recepciones (Mobile-first).
+- Gestión de Facturas y Cuentas a Pagar.
+- Registro de Pagos y Comprobantes.
+- Ficha de Proveedores.

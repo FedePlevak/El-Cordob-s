@@ -1,0 +1,66 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-surface text-on-surface font-sans;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display;
+  }
+}
+
+@layer components {
+  /* Logistics Card - No Line Rule */
+  .logistics-card {
+    @apply bg-surface-container-lowest rounded-xl p-4 shadow-sm relative overflow-hidden;
+  }
+
+  /* Buttons */
+  .btn-primary {
+    @apply min-h-[56px] rounded-xl bg-gradient-to-r from-primary to-primary-container text-white px-6 py-3 font-semibold text-sm inline-flex items-center justify-center transition-opacity hover:opacity-90 active:opacity-100;
+  }
+
+  .btn-secondary {
+    @apply min-h-[56px] rounded-xl bg-surface-container-high text-on-surface px-6 py-3 font-semibold text-sm inline-flex items-center justify-center transition-colors hover:bg-outline-variant/30;
+  }
+
+  /* Form Elements */
+  .form-label {
+    @apply block text-sm font-medium mb-1.5 text-on-surface/80;
+  }
+
+  .form-input {
+    @apply w-full rounded-xl bg-surface-container-low px-4 py-3 border-2 border-transparent focus:bg-surface-container-lowest focus:border-primary focus:outline-none transition-colors;
+  }
+
+  /* Chips / Semaphore */
+  .status-chip {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider;
+  }
+  .status-pending {
+    @apply bg-surface-container-high text-on-surface/70;
+  }
+  .status-alert {
+    @apply bg-primary-fixed/20 text-primary-fixed;
+  }
+  .status-ready {
+    @apply bg-secondary/10 text-secondary;
+  }
+  .status-progress {
+    @apply bg-primary/10 text-primary;
+  }
+  .status-closed {
+    @apply bg-on-secondary-fixed-variant/10 text-on-secondary-fixed-variant;
+  }
+  .status-urgent {
+    @apply bg-tertiary/10 text-tertiary;
+  }
+
+  /* Glass Navigation */
+  .glass-nav {
+    @apply bg-surface-container-lowest/80 backdrop-blur-xl border-t border-outline-variant/10;
+  }
+}

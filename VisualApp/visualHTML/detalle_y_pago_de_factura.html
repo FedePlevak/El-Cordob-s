@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Detalle de Factura - Logística Administrativa</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "background": "#f4faff",
+                        "tertiary-container": "#bc1c21",
+                        "tertiary": "#960010",
+                        "error-container": "#ffdad6",
+                        "secondary": "#1b6d24",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed-dim": "#ffb3ac",
+                        "on-primary-container": "#cadcff",
+                        "primary": "#00488d",
+                        "surface-container-low": "#e6f6ff",
+                        "inverse-primary": "#a8c8ff",
+                        "surface-container-lowest": "#ffffff",
+                        "outline": "#727783",
+                        "on-tertiary-fixed": "#410003",
+                        "secondary-fixed": "#a3f69c",
+                        "on-error-container": "#93000a",
+                        "surface-bright": "#f4faff",
+                        "surface": "#f4faff",
+                        "surface-variant": "#c9e7f7",
+                        "on-primary-fixed-variant": "#00468b",
+                        "surface-tint": "#005db5",
+                        "on-primary-fixed": "#001b3d",
+                        "tertiary-fixed": "#ffdad6",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-highest": "#c9e7f7",
+                        "on-surface-variant": "#424752",
+                        "on-secondary-fixed": "#002204",
+                        "on-tertiary-fixed-variant": "#930010",
+                        "secondary-container": "#a0f399",
+                        "on-tertiary-container": "#ffd0cb",
+                        "primary-fixed-dim": "#a8c8ff",
+                        "on-secondary-container": "#217128",
+                        "on-surface": "#001f2a",
+                        "on-secondary": "#ffffff",
+                        "on-secondary-fixed-variant": "#005312",
+                        "inverse-surface": "#163440",
+                        "on-primary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "on-background": "#001f2a",
+                        "inverse-on-surface": "#e0f4ff",
+                        "primary-container": "#005fb8",
+                        "surface-container-high": "#ceedfd",
+                        "secondary-fixed-dim": "#88d982",
+                        "outline-variant": "#c2c6d4",
+                        "surface-container": "#d9f2ff",
+                        "primary-fixed": "#d6e3ff",
+                        "surface-dim": "#c0dfee"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background font-body text-on-surface">
+<!-- Top Navigation Bar -->
+<header class="bg-slate-50/70 dark:bg-slate-900/70 backdrop-blur-xl docked full-width top-0 sticky z-50 shadow-sm dark:shadow-none no-border bg-slate-100/50 dark:bg-slate-800/50 flex justify-between items-center w-full px-6 py-4">
+<div class="flex items-center gap-4">
+<button class="hover:bg-slate-200/50 dark:hover:bg-slate-700/50 transition-colors rounded-full p-2 scale-95 active:duration-100 text-blue-700 dark:text-blue-400">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+<h1 class="font-manrope font-bold text-lg tracking-tight text-blue-700 dark:text-blue-400">Logística Administrativa</h1>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden">
+<img alt="Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBQXdI5U8qLSNs7LetNnw84pPmfViQZ6sA19pWDvetyMuEzvz5sl_Wy9vHdxistVPxo1HzBQ4nUYuDpvJ3Q1HPkE3fU34tZ1fJ6RCJvzDMOH50cLEo50XHa2HbduDSmcLFw0lLBnOlnvEnPIyNP2UUERk-rVV-XQFdjLs_XR8IdobA3e9D5rJHqJD4xKjRoYBQkO_7jT94ai47fS6S2Rb7yDocFPp83MIYhWF1VAknbUzDbMISHBo2bgc-BpYAy8USjePMhp8Akl71p"/>
+</div>
+</div>
+</header>
+<main class="max-w-4xl mx-auto px-6 pt-8 pb-32">
+<!-- Header Section: Editorial Contrast -->
+<section class="mb-10">
+<div class="flex justify-between items-end mb-4">
+<div>
+<span class="font-label text-label-sm uppercase tracking-widest text-on-surface-variant/70">Factura Pendiente</span>
+<h2 class="font-headline font-extrabold text-4xl mt-1 tracking-tight">FAC-2024-0891</h2>
+</div>
+<div class="flex flex-col items-end">
+<span class="font-label text-label-sm uppercase text-on-surface-variant/60 mb-1">Monto Total</span>
+<span class="font-headline font-black text-3xl text-primary">$4,850.00</span>
+</div>
+</div>
+<!-- Trazabilidad / Stepper -->
+<div class="bg-surface-container-low rounded-xl p-4 flex items-center gap-6">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="font-label font-bold text-sm">Factura Validada</span>
+</div>
+<div class="h-px flex-1 bg-outline-variant/30"></div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="pending">pending</span>
+<span class="font-label font-bold text-sm text-primary">Pendiente de Pago</span>
+</div>
+<div class="h-px flex-1 bg-outline-variant/30"></div>
+<div class="flex items-center gap-2 opacity-30">
+<span class="material-symbols-outlined" data-icon="radio_button_unchecked">radio_button_unchecked</span>
+<span class="font-label font-bold text-sm">Pago Confirmado</span>
+</div>
+</div>
+</section>
+<!-- Asymmetric Layout Grid -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+<!-- Left: Factura Details & Form (8 columns) -->
+<div class="md:col-span-8 space-y-8">
+<!-- Info Cards Section (Bento Style) -->
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm">
+<span class="font-label text-xs text-on-surface-variant uppercase tracking-tighter">Proveedor</span>
+<p class="font-headline font-bold text-lg text-on-surface mt-1">Distribuidora Global S.A.</p>
+<p class="text-sm text-on-surface-variant">CUIT: 30-71004521-9</p>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border-l-4 border-tertiary">
+<span class="font-label text-xs text-on-surface-variant uppercase tracking-tighter">Vencimiento</span>
+<p class="font-headline font-bold text-lg text-tertiary mt-1">15 Oct 2024</p>
+<p class="text-sm text-tertiary/70 font-medium italic">Vence en 2 días</p>
+</div>
+</div>
+<!-- Registration Form Section (Initially focused) -->
+<section class="bg-surface-container-lowest rounded-xl p-8 shadow-sm" id="payment-form">
+<div class="flex items-center gap-3 mb-8">
+<div class="w-12 h-12 rounded-full bg-primary-fixed flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+</div>
+<h3 class="font-headline font-extrabold text-2xl">Registrar Pago</h3>
+</div>
+<form class="space-y-6">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Fecha -->
+<div class="flex flex-col gap-2">
+<label class="font-label font-semibold text-on-surface-variant text-sm">Fecha de Pago</label>
+<input class="w-full bg-surface-container-low border-none rounded-xl h-14 px-4 focus:ring-2 focus:ring-primary/20 focus:bg-surface-container-lowest transition-all" type="date"/>
+</div>
+<!-- Medio de Pago -->
+<div class="flex flex-col gap-2">
+<label class="font-label font-semibold text-on-surface-variant text-sm">Medio de Pago</label>
+<select class="w-full bg-surface-container-low border-none rounded-xl h-14 px-4 focus:ring-2 focus:ring-primary/20 focus:bg-surface-container-lowest transition-all">
+<option>Transferencia Bancaria</option>
+<option>Efectivo</option>
+<option>Cheque Propio</option>
+</select>
+</div>
+</div>
+<!-- File Upload Area -->
+<div class="flex flex-col gap-2">
+<label class="font-label font-semibold text-on-surface-variant text-sm">Comprobante de Pago</label>
+<div class="border-2 border-dashed border-outline-variant/50 rounded-xl p-8 flex flex-col items-center justify-center bg-surface-container-low hover:bg-surface-container/50 transition-all cursor-pointer">
+<span class="material-symbols-outlined text-4xl text-primary mb-2" data-icon="upload_file">upload_file</span>
+<p class="font-headline font-bold text-on-surface">Subir Comprobante</p>
+<p class="text-sm text-on-surface-variant">Formatos PDF, JPG o PNG (Max 5MB)</p>
+</div>
+</div>
+<!-- Checkbox Logic -->
+<label class="flex items-center gap-4 p-4 bg-surface-container-low rounded-xl cursor-pointer hover:bg-surface-container transition-colors">
+<input class="w-6 h-6 rounded text-primary border-outline-variant focus:ring-primary" type="checkbox"/>
+<div class="flex flex-col">
+<span class="font-label font-bold text-sm">Comprobante enviado al proveedor</span>
+<span class="text-xs text-on-surface-variant">Notificar automáticamente al email de Distribuidora Global</span>
+</div>
+</label>
+<!-- Final Action Button -->
+<button class="w-full h-14 bg-primary rounded-xl flex items-center justify-center gap-3 text-white font-headline font-bold text-lg shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all" type="submit">
+<span>Confirmar Pago</span>
+<span class="material-symbols-outlined" data-icon="verified">verified</span>
+</button>
+</form>
+</section>
+</div>
+<!-- Right: Comparisons & Proofs (4 columns) -->
+<div class="md:col-span-4 space-y-6">
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm">
+<div class="p-4 bg-surface-container-high border-b border-outline-variant/10">
+<h4 class="font-headline font-bold text-sm uppercase tracking-tight flex items-center gap-2">
+<span class="material-symbols-outlined text-sm" data-icon="compare">compare</span>
+                            Recepción Asociada
+                        </h4>
+</div>
+<!-- Receipt Image Mockup -->
+<div class="relative group">
+<img class="w-full h-64 object-cover" data-alt="Close-up of a logistics receiving document with handwritten signatures and warehouse stamps on a wooden desk with soft natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBQxxmYkte5eKFMgtOJttLAWE6rQ7RD3xPZMkvTDr0zq3FGz0_lOt86ZPXIoS5A-oLNAqEEj8xOtzoU-_Js8KfFvkhg42TIXjZliADKUCRWlxVJUdhb_3o7IKp1CGF6lbqSW5n3AIdSdCnJSRbIrzht81VsutvGpaXzoPZNF4L1GOV5g910_86j977nnrQJ_2M2Lwdl03Ouu_62Tgv-fAIT_SBO18L0P7oJNrES8Mv76u5sAFDToMDMh8_KZlnbFGOCrPZVAC4HrfHV"/>
+<div class="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
+<button class="bg-white text-primary px-4 py-2 rounded-full font-bold text-sm flex items-center gap-2 shadow-xl">
+<span class="material-symbols-outlined" data-icon="zoom_in">zoom_in</span>
+                                Ampliar Recibo
+                            </button>
+</div>
+</div>
+<div class="p-4 space-y-2">
+<div class="flex justify-between text-sm">
+<span class="text-on-surface-variant">ID Recepción</span>
+<span class="font-bold">REC-99201</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-on-surface-variant">Fecha de Entrega</span>
+<span class="font-bold">10 Oct 2024</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-on-surface-variant">Recibido por</span>
+<span class="font-bold">Carlos M.</span>
+</div>
+</div>
+</div>
+<!-- Alert/Audit Section -->
+<div class="bg-primary-fixed p-6 rounded-xl flex items-start gap-4">
+<span class="material-symbols-outlined text-primary" data-icon="gavel">gavel</span>
+<div>
+<p class="font-headline font-bold text-sm text-on-primary-fixed">Auditoría de Control</p>
+<p class="text-xs text-on-primary-fixed-variant leading-relaxed mt-1">Los montos coinciden exactamente con la orden de compra original OC-450.</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-2xl shadow-[0_-8px_30px_rgb(0,0,0,0.04)] fixed bottom-0 w-full rounded-t-3xl border-t border-slate-200/20 dark:border-slate-700/20">
+<div class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 py-2 hover:text-blue-500 dark:hover:text-blue-300 tap-highlight-none active:scale-90 transition-transform cursor-pointer">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-inter font-medium text-[11px] tracking-wide uppercase mt-1">Inicio</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 py-2 hover:text-blue-500 dark:hover:text-blue-300 tap-highlight-none active:scale-90 transition-transform cursor-pointer">
+<span class="material-symbols-outlined" data-icon="local_shipping">local_shipping</span>
+<span class="font-inter font-medium text-[11px] tracking-wide uppercase mt-1">Recepciones</span>
+</div>
+<div class="flex flex-col items-center justify-center bg-blue-100/50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-2xl px-5 py-2 tap-highlight-none active:scale-90 transition-transform cursor-pointer">
+<span class="material-symbols-outlined" data-icon="receipt_long" style="font-variation-settings: 'FILL' 1;">receipt_long</span>
+<span class="font-inter font-medium text-[11px] tracking-wide uppercase mt-1">Facturas</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 py-2 hover:text-blue-500 dark:hover:text-blue-300 tap-highlight-none active:scale-90 transition-transform cursor-pointer">
+<span class="material-symbols-outlined" data-icon="inventory">inventory</span>
+<span class="font-inter font-medium text-[11px] tracking-wide uppercase mt-1">Proveedores</span>
+</div>
+</nav>
+</body></html>

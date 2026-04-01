@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "background": "#f4faff",
+                        "tertiary-container": "#bc1c21",
+                        "tertiary": "#960010",
+                        "error-container": "#ffdad6",
+                        "secondary": "#1b6d24",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed-dim": "#ffb3ac",
+                        "on-primary-container": "#cadcff",
+                        "primary": "#00488d",
+                        "surface-container-low": "#e6f6ff",
+                        "inverse-primary": "#a8c8ff",
+                        "surface-container-lowest": "#ffffff",
+                        "outline": "#727783",
+                        "on-tertiary-fixed": "#410003",
+                        "secondary-fixed": "#a3f69c",
+                        "on-error-container": "#93000a",
+                        "surface-bright": "#f4faff",
+                        "surface": "#f4faff",
+                        "surface-variant": "#c9e7f7",
+                        "on-primary-fixed-variant": "#00468b",
+                        "surface-tint": "#005db5",
+                        "on-primary-fixed": "#001b3d",
+                        "tertiary-fixed": "#ffdad6",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-highest": "#c9e7f7",
+                        "on-surface-variant": "#424752",
+                        "on-secondary-fixed": "#002204",
+                        "on-tertiary-fixed-variant": "#930010",
+                        "secondary-container": "#a0f399",
+                        "on-tertiary-container": "#ffd0cb",
+                        "primary-fixed-dim": "#a8c8ff",
+                        "on-secondary-container": "#217128",
+                        "on-surface": "#001f2a",
+                        "on-secondary": "#ffffff",
+                        "on-secondary-fixed-variant": "#005312",
+                        "inverse-surface": "#163440",
+                        "on-primary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "on-background": "#001f2a",
+                        "inverse-on-surface": "#e0f4ff",
+                        "primary-container": "#005fb8",
+                        "surface-container-high": "#ceedfd",
+                        "secondary-fixed-dim": "#88d982",
+                        "outline-variant": "#c2c6d4",
+                        "surface-container": "#d9f2ff",
+                        "primary-fixed": "#d6e3ff",
+                        "surface-dim": "#c0dfee"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body min-h-screen pb-24">
+<!-- Top Navigation -->
+<nav class="bg-slate-50/70 dark:bg-slate-900/70 backdrop-blur-xl docked full-width top-0 sticky z-50 shadow-sm flex justify-between items-center w-full px-6 py-4">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-blue-700">menu</span>
+<h1 class="font-manrope font-bold text-lg tracking-tight text-slate-900">Logística Administrativa</h1>
+</div>
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container">
+<img alt="Profile" data-alt="Close-up professional portrait of a logistics manager in a modern office setting with soft natural window lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA4be-89IBmNl_2cLRzWP81E1YB5Tb5-mK4EwqwID2i-lW3-2QRBEaw0fJait9XoVbHC5DDVR3TrxW-Yhj7YaYRBO3_UWoPUw5XSC5YyhYDpg6nG_TbNwvCQbWwW0scBM5fqHS5dw_B5fiX9S2DZs2XS-vmwC2VnoYBnasGNZNuSXckYdd8QQtwbaPu_ek1MvwUhp7Q8TNFBfhWeHvopINNZ4ePHlneL3jFYo0vSHRO6t41AIzqkhi-5M2-Fy6PhfT8zR3bPs1EywQh"/>
+</div>
+</nav>
+<main class="max-w-md mx-auto px-6 pt-6">
+<!-- Dashboard Header -->
+<header class="mb-8">
+<p class="text-on-surface-variant font-label text-sm uppercase tracking-widest mb-1">Estado Operativo</p>
+<h2 class="font-headline font-extrabold text-3xl text-on-surface leading-tight">Panel de Control</h2>
+</header>
+<!-- Metrics Bento Grid -->
+<div class="grid grid-cols-2 gap-4 mb-10">
+<!-- Metric Card: Review -->
+<div class="bg-surface-container-high rounded-full p-5 flex flex-col justify-between aspect-square">
+<span class="material-symbols-outlined text-outline self-end">fact_check</span>
+<div>
+<span class="block text-3xl font-headline font-extrabold text-on-surface">12</span>
+<span class="block text-xs font-label font-medium text-on-surface-variant uppercase mt-1">Facturas para Revisar</span>
+</div>
+</div>
+<!-- Metric Card: Warning (Yellow) -->
+<div class="bg-primary-fixed rounded-full p-5 flex flex-col justify-between aspect-square">
+<span class="material-symbols-outlined text-on-primary-fixed-variant self-end">schedule</span>
+<div>
+<span class="block text-3xl font-headline font-extrabold text-on-primary-fixed">08</span>
+<span class="block text-xs font-label font-medium text-on-primary-fixed-variant uppercase mt-1">Próximas a Vencer</span>
+</div>
+</div>
+<!-- Metric Card: Urgent (Red) -->
+<div class="bg-tertiary-container rounded-full p-5 flex flex-col justify-between aspect-square">
+<span class="material-symbols-outlined text-on-tertiary-container self-end">warning</span>
+<div>
+<span class="block text-3xl font-headline font-extrabold text-white">03</span>
+<span class="block text-xs font-label font-medium text-on-tertiary-container uppercase mt-1">Vencidas</span>
+</div>
+</div>
+<!-- Metric Card: Pending (Blue) -->
+<div class="bg-primary-container rounded-full p-5 flex flex-col justify-between aspect-square">
+<span class="material-symbols-outlined text-on-primary-container self-end">receipt</span>
+<div>
+<span class="block text-3xl font-headline font-extrabold text-white">24</span>
+<span class="block text-xs font-label font-medium text-on-primary-container uppercase mt-1">Recibos Pendientes</span>
+</div>
+</div>
+</div>
+<!-- Recent Activity Section -->
+<section class="mb-10">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline font-bold text-xl text-on-surface">Recepciones Recientes</h3>
+<span class="text-primary font-label text-sm font-bold">Ver todo</span>
+</div>
+<div class="space-y-6">
+<!-- Activity Item 1 -->
+<div class="bg-surface-container-lowest rounded-full p-4 flex items-center gap-4 shadow-sm">
+<div class="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0">
+<img alt="Delivery Check" class="w-full h-full object-cover" data-alt="Detailed close-up of a brown cardboard package with shipping labels being processed in a warehouse setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA0Lqoj7gxJu1odClLsG4UeKy67czgynKPDXfREAKVT353pqTPwBNJM0Ade2kK8xaoo5HJNMtSBNLXVrE38iFJZHeY3A_5jw3XTXLXhDuuVVDjQtQ1HciWx4eG34qGeCR0Gp_vJhQ1b6F7PLPKg7NCEF7t9pjClVFIdKoABEKGU59_gdhfb7I6N-BoizFimn8kTkblUzxwv-pvifQsVI0NUNuavcRlQmpg0HqsQtRpPCsNb6RH4a6-AwUT68jSWz8DAA06ijbZRWnA9"/>
+</div>
+<div class="flex-grow min-w-0">
+<div class="flex justify-between items-start mb-1">
+<span class="font-headline font-bold text-on-surface truncate">RC-8842-PT</span>
+<span class="inline-flex items-center rounded-full bg-secondary-container px-2 py-0.5 text-[10px] font-bold text-on-secondary-container uppercase">Revisada</span>
+</div>
+<p class="text-xs text-on-surface-variant font-medium">Logística del Norte S.A.</p>
+<p class="text-[10px] text-outline mt-1 italic">Hace 15 minutos</p>
+</div>
+</div>
+<!-- Activity Item 2 -->
+<div class="bg-surface-container-lowest rounded-full p-4 flex items-center gap-4 shadow-sm">
+<div class="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0">
+<img alt="Logistics Receipt" class="w-full h-full object-cover" data-alt="Photo of a digital tablet showing a logistics management interface next to stacked metal shipping containers" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBht1UMF5dlS0advgqIOk__utAXLKOXkolpDY4rt_NFCXmZj_eB7ujRaAFq1Et_k20d0tLhdiAiN3uS0gtW9_74kQ4mUljhQGFfjltgFcHRgkZxm1VmOfoG7x75OCi3mn-HdQEoAepXHMHLlQVVBU3oSHbtwQc2iq5vzs0RZ1i6koCJJ8SxeIjwvLWa7738YI5gUcW-ThoW6n1uVu_Up39Y4a8DCmAmayP_4rJhfvpQggh_NGVB4PRAbhZGgjQ4JPt7wFQeaJ2Zx5qC"/>
+</div>
+<div class="flex-grow min-w-0">
+<div class="flex justify-between items-start mb-1">
+<span class="font-headline font-bold text-on-surface truncate">RC-8839-PT</span>
+<span class="inline-flex items-center rounded-full bg-surface-container-high px-2 py-0.5 text-[10px] font-bold text-on-surface-variant uppercase">Pendiente</span>
+</div>
+<p class="text-xs text-on-surface-variant font-medium">Insumos Globales Inc.</p>
+<p class="text-[10px] text-outline mt-1 italic">Hace 2 horas</p>
+</div>
+</div>
+<!-- Activity Item 3 -->
+<div class="bg-surface-container-lowest rounded-full p-4 flex items-center gap-4 shadow-sm">
+<div class="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0">
+<img alt="Package Verification" class="w-full h-full object-cover" data-alt="Warehouse staff scanning a barcode on a large white industrial container with blue ambient lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAlIR5ctogCrr3u1E47jHkhCIG8L4xcxJoZojhSiCEHTerb6Cp9UQ7Yd8ezg7FcVZScC8jQbs3wmlIljpEaHmQCcJaSqLvBHhfJ5Eje8oFMNaPSETc2MTGAkUXGkYRGyGilFgXTJTCBkcJfMgFR6JSZFXtKenuS6TEtjqtXrmOXnO5tZLRmvxqOCU88UxXO4DEZ2lGr8W10ewln5NQuWiPqP1Y_ksQkbkCoEor9sOaO4bzkKyFhuLkKyhYY73vaMenVaOFBNGJsNTtY"/>
+</div>
+<div class="flex-grow min-w-0">
+<div class="flex justify-between items-start mb-1">
+<span class="font-headline font-bold text-on-surface truncate">RC-8835-PT</span>
+<span class="inline-flex items-center rounded-full bg-secondary-container px-2 py-0.5 text-[10px] font-bold text-on-secondary-container uppercase">Revisada</span>
+</div>
+<p class="text-xs text-on-surface-variant font-medium">Distribuidora Central</p>
+<p class="text-[10px] text-outline mt-1 italic">Hace 5 horas</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Floating Action Button -->
+<button class="fixed right-6 bottom-28 w-16 h-16 rounded-full bg-primary flex items-center justify-center text-white shadow-xl active:scale-95 transition-transform z-50">
+<span class="material-symbols-outlined text-3xl">add</span>
+</button>
+<!-- Bottom Navigation Bar -->
+<footer class="bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-2xl fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 shadow-[0_-8px_30px_rgb(0,0,0,0.04)] rounded-t-3xl border-t border-slate-200/20">
+<!-- Active Tab: Inicio -->
+<a class="flex flex-col items-center justify-center bg-blue-100/50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-2xl px-5 py-2 tap-highlight-none active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="font-inter font-medium text-[11px] tracking-wide uppercase mt-1">Inicio</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 py-2 hover:text-blue-500 dark:hover:text-blue-300 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined">local_shipping</span>
+<span class="font-inter font-medium text-[11px] tracking-wide uppercase mt-1">Recepciones</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 py-2 hover:text-blue-500 dark:hover:text-blue-300 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined">receipt_long</span>
+<span class="font-inter font-medium text-[11px] tracking-wide uppercase mt-1">Facturas</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 py-2 hover:text-blue-500 dark:hover:text-blue-300 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined">inventory</span>
+<span class="font-inter font-medium text-[11px] tracking-wide uppercase mt-1">Proveedores</span>
+</a>
+</footer>
+</body></html>
