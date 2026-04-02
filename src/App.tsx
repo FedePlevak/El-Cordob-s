@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { formatCurrency } from './lib/utils';
-import { FileText, CheckCircle2, Clock, Plus, Check, LogOut, UserCircle, DollarSign, CheckSquare, Square, Layers, Archive, Package, Truck, Camera, Image } from 'lucide-react';
+import { FileText, CheckCircle2, Clock, Plus, Check, LogOut, UserCircle, DollarSign, CheckSquare, Square, Layers, Archive, Package, Truck, Camera, Image, ShieldCheck, Clock3 } from 'lucide-react';
 import { supabase } from './lib/supabase';
 import { LoginPage } from './components/LoginPage';
 import { ReceptionForm } from './components/ReceptionForm';
@@ -8,6 +8,7 @@ import { OperationDetail } from './components/OperationDetail';
 import { ProductsManager } from './components/ProductsManager';
 import { SuppliersManager } from './components/SuppliersManager';
 import { SupplierStatement } from './components/SupplierStatement';
+import { AdminUsersManager } from './components/AdminUsersManager';
 
 export interface Supplier {
   id: string;
@@ -61,6 +62,8 @@ function App() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isProductsManagerOpen, setIsProductsManagerOpen] = useState(false);
   const [isSuppliersManagerOpen, setIsSuppliersManagerOpen] = useState(false);
+  const [isAdminManagerOpen, setIsAdminManagerOpen] = useState(false);
+  const [userProfile, setUserProfile] = useState<any>(null);
   const [selectedOp, setSelectedOp] = useState<Operation | null>(null);
   const [selectedSupplierForStatement, setSelectedSupplierForStatement] = useState<Supplier | null>(null);
   const [loading, setLoading] = useState(true);
@@ -80,24 +83,34 @@ function App() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
-      if (session) fetchInitialData();
-      else setLoading(false);
+      if (session) {
+        fetchUserProfile(session.user.id).then(() => fetchInitialData());
+      } else {
+        setLoading(false);
+      }
     });
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
-      if (session) fetchInitialData();
-      else {
+      if (session) {
+        fetchUserProfile(session.user.id).then(() => fetchInitialData());
+      } else {
         setOperations([]);
         setSuppliers([]);
         setProducts([]);
+        setUserProfile(null);
       }
     });
 
     return () => subscription.unsubscribe();
   }, []);
+
+  const fetchUserProfile = async (userId: string) => {
+    const { data } = await supabase.from('profiles').select('*').eq('id', userId).single();
+    if (data) setUserProfile(data);
+  };
 
   const fetchInitialData = async () => {
     setLoading(true);
@@ -292,6 +305,27 @@ function App() {
 
   if (!session) return <LoginPage />;
 
+  const isApproved = isAdmin || (userProfile && userProfile.status === 'approved');
+
+  if (session && !isApproved && !loading) {
+     return (
+        <div className="min-h-screen bg-surface flex flex-col items-center justify-center p-6 text-center">
+            <div className="w-20 h-20 bg-surface-container-high rounded-full flex items-center justify-center mb-6">
+               {userProfile?.status === 'rejected' ? <LogOut className="w-10 h-10 text-error" /> : <Clock3 className="w-10 h-10 text-tertiary" />}
+            </div>
+            <h1 className="text-2xl font-display font-bold text-on-surface mb-2">
+               {userProfile?.status === 'rejected' ? 'Acceso Denegado' : 'Aprobación Pendiente'}
+            </h1>
+            <p className="text-on-surface/60 max-w-sm mb-8">
+               {userProfile?.status === 'rejected' 
+                 ? 'Tu solicitud de acceso ha sido rechazada por el administrador.' 
+                 : 'Tu cuenta ha sido registrada correctamente. Por favor, espera a que el administrador apruebe tu acceso para poder ingresar a la plataforma.'}
+            </p>
+            <button onClick={handleSignOut} className="btn-primary px-8">Volver al inicio</button>
+        </div>
+     );
+  }
+
   const getStatusChip = (status: string) => {
     switch (status) {
       case 'pending': return <div className="mt-2 text-xs font-semibold uppercase tracking-wider text-secondary bg-secondary/10 inline-block px-2 py-1 rounded-md">Pdte. Pago</div>;
@@ -333,6 +367,15 @@ function App() {
            </div>
         </div>
         <div className="flex gap-2">
+          {isAdmin && (
+            <button 
+              onClick={() => setIsAdminManagerOpen(true)}
+              className="w-11 h-11 rounded-2xl bg-surface-container-high flex items-center justify-center text-on-surface hover:text-primary transition-colors shadow-sm"
+              title="Gestión de Accesos"
+            >
+              <ShieldCheck className="w-5 h-5" />
+            </button>
+          )}
           <button 
             onClick={() => setIsSuppliersManagerOpen(true)}
             className="w-11 h-11 rounded-2xl bg-surface-container-high flex items-center justify-center text-on-surface hover:text-primary transition-colors shadow-sm"
@@ -593,6 +636,11 @@ function App() {
         onClose={() => setIsSuppliersManagerOpen(false)}
         suppliers={suppliers}
         refreshData={fetchInitialData}
+      />
+
+      <AdminUsersManager
+        isOpen={isAdminManagerOpen}
+        onClose={() => setIsAdminManagerOpen(false)}
       />
 
       {selectedOp && (

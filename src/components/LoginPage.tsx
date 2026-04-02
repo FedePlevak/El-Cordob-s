@@ -1,25 +1,43 @@
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { LogIn, Mail, Lock, ShieldCheck } from 'lucide-react';
+import { LogIn, Mail, Lock, ShieldCheck, UserPlus } from 'lucide-react';
 
 export function LoginPage() {
+  const [isRegistering, setIsRegistering] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setSuccessMsg(null);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    if (isRegistering) {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+      });
 
-    if (error) {
-      setError(error.message);
+      if (error) {
+        setError(error.message);
+      } else {
+        setSuccessMsg("Registro exitoso. Tu cuenta debe ser aprobada por el administrador.");
+        // Opcionalmente podemos cambiar al modo de login
+        setTimeout(() => setIsRegistering(false), 3000);
+      }
+    } else {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        setError(error.message);
+      }
     }
     setLoading(false);
   };
@@ -35,7 +53,7 @@ export function LoginPage() {
           <p className="text-on-surface/50 mt-2">Control de factuación v.0.1</p>
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1">
             <label className="form-label px-1">Email</label>
             <div className="relative">
@@ -71,18 +89,32 @@ export function LoginPage() {
               {error}
             </div>
           )}
+          {successMsg && (
+            <div className="p-3 bg-primary/10 border border-primary/20 rounded-xl text-primary text-xs font-semibold text-center mt-2">
+              {successMsg}
+            </div>
+          )}
 
           <button 
             type="submit" 
             disabled={loading}
             className="btn-primary w-full mt-4 gap-2 h-[60px]"
           >
-            <LogIn className="w-5 h-5" />
-            {loading ? 'Iniciando sesión...' : 'Ingresar'}
+            {isRegistering ? <UserPlus className="w-5 h-5" /> : <LogIn className="w-5 h-5" />}
+            {loading ? 'Procesando...' : (isRegistering ? 'Solicitar Acceso' : 'Ingresar')}
           </button>
         </form>
 
-        <p className="text-center text-xs text-on-surface/30 font-medium">
+        <div className="text-center mt-4">
+          <button 
+            onClick={() => { setIsRegistering(!isRegistering); setError(null); setSuccessMsg(null); }}
+            className="text-primary hover:underline text-sm font-semibold"
+          >
+            {isRegistering ? 'Ya tengo una cuenta, iniciar sesión' : 'Solicitar una nueva cuenta'}
+          </button>
+        </div>
+
+        <p className="text-center text-xs text-on-surface/30 font-medium mt-8">
           Sistema de uso interno únicamente
         </p>
       </div>

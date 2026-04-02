@@ -1,0 +1,17 @@
+{
+  "short_name": "El Cordobés",
+  "name": "El Cordobés Control de Facturación",
+  "icons": [
+    {
+      "src": "/logo.svg",
+      "type": "image/svg+xml",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "theme_color": "#005A9C",
+  "description": "Logística y Facturación en tiempo real."
+}
