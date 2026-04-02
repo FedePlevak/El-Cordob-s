@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { X, Check, Plus, Trash2, ChevronDown, Package, Camera, Image as ImageIcon } from 'lucide-react';
-import { formatCurrency } from '../lib/utils';
 
 interface Supplier {
   id: string;

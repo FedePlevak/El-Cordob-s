@@ -23,6 +23,7 @@ interface Operation {
   expirationDate?: string;
   documentNumber?: string;
   paymentVoucherUrl?: string;
+  invoiceImageUrl?: string;
   supplierReceiptNumber?: string;
   // Audit
   userEmail?: string;
