@@ -1,15 +1,35 @@
-import { useState } from 'react';
-import { X, DollarSign, FileCheck, CheckCircle, AlertTriangle, ArrowRight } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { X, DollarSign, FileCheck, CheckCircle, AlertTriangle, Upload, ExternalLink, Camera, Image, User } from 'lucide-react';
+import { supabase } from '../lib/supabase';
+
+interface InvoiceItem {
+  productId?: string;
+  productName: string;
+  quantity: string;
+}
 
 interface Operation {
   id: string;
   supplierId: string;
   supplierName: string;
-  type: 'Remito' | 'Factura';
-  status: 'pending' | 'ready' | 'alert' | 'closed';
+  type: 'Factura';
+  status: 'pending' | 'ready' | 'closed';
   amount?: string;
   date: string;
+  invoiceDate?: string;
+  receptionDate?: string;
   observations?: string;
+  expirationDate?: string;
+  documentNumber?: string;
+  paymentVoucherUrl?: string;
+  supplierReceiptNumber?: string;
+  // Audit
+  userEmail?: string;
+  createdAt?: string;
+  // Legacy / new fields
+  product?: string;
+  quantity?: string;
+  items?: InvoiceItem[];
 }
 
 interface OperationDetailProps {
@@ -19,51 +39,63 @@ interface OperationDetailProps {
 }
 
 export function OperationDetail({ operation, onClose, onUpdate }: OperationDetailProps) {
-  const [amount, setAmount] = useState(operation?.amount || '');
   const [loading, setLoading] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
+  
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   if (!operation) return null;
 
-  const handleCargarFactura = () => {
-    if (!amount) return;
-    onUpdate({
-      ...operation,
-      amount: amount.toString().startsWith('U$S') ? amount : `U$S ${amount}`,
-      status: 'ready',
-      date: 'Lista para pagar',
-    });
-    onClose();
-  };
-
-  const handlePagar = () => {
+  const handleUploadPayment = async () => {
+    if (!file) return;
     setLoading(true);
-    // Simulating upload
-    setTimeout(() => {
+    try {
+      const fileExt = file.name.split('.').pop() || 'jpg';
+      const fileName = `${operation.id}-${Math.random()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('payment_vouchers')
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data } = supabase.storage
+        .from('payment_vouchers')
+        .getPublicUrl(fileName);
+
       onUpdate({
         ...operation,
-        status: 'closed',
-        date: 'Pagado hoy',
+        status: 'ready',
+        paymentVoucherUrl: data.publicUrl
       });
-      setLoading(false);
       onClose();
-    }, 1000);
+    } catch (e: any) {
+      console.error(e);
+      alert(`Error al subir el comprobante: ${e.message}`);
+    }
+    setLoading(false);
+  };
+
+  const lines = (operation.items && operation.items.length > 0) 
+    ? operation.items 
+    : (operation.product && operation.quantity ? [{ productName: operation.product, quantity: operation.quantity }] : []);
+
+  const formatDateTime = (isoString?: string) => {
+    if (!isoString) return 'Desconocido';
+    const d = new Date(isoString);
+    return d.toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' });
   };
 
   return (
     <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-0 sm:p-4">
-      {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-on-surface/40 backdrop-blur-sm"
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-on-surface/40 backdrop-blur-sm" onClick={onClose} />
       
-      {/* Detail Card / Modal */}
-      <div className="relative w-full max-w-lg bg-surface rounded-t-[32px] sm:rounded-[32px] p-6 shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto">
-        {/* Status Header Background */}
+      <div className="relative w-full max-w-lg bg-surface rounded-t-[32px] sm:rounded-[32px] p-6 shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto flex flex-col">
         <div className={`absolute top-0 left-0 right-0 h-2 ${
-           operation.status === 'ready' ? 'bg-secondary' :
-           operation.status === 'alert' ? 'bg-primary-fixed' :
-           operation.status === 'closed' ? 'bg-on-secondary-fixed' : 'bg-primary'
+           operation.status === 'pending' ? 'bg-secondary' :
+           operation.status === 'ready' ? 'bg-primary-fixed' :
+           'bg-on-secondary-fixed'
         }`} />
 
         <div className="flex items-center justify-between mt-4 mb-6">
@@ -73,23 +105,52 @@ export function OperationDetail({ operation, onClose, onUpdate }: OperationDetai
           </button>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-6 flex-1">
           {/* Header Info */}
           <div className="flex gap-4">
             <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 ${
                operation.status === 'closed' ? 'bg-on-secondary-fixed/10' : 'bg-surface-container-high'
             }`}>
               {operation.status === 'closed' ? <CheckCircle className="text-on-secondary-fixed w-7 h-7" /> : 
-               operation.status === 'ready' ? <DollarSign className="text-secondary w-7 h-7" /> :
-               <FileCheck className="text-primary w-7 h-7" />}
+               operation.status === 'ready' ? <FileCheck className="text-primary-fixed w-7 h-7" /> :
+               <DollarSign className="text-secondary w-7 h-7" />}
             </div>
             <div>
               <h3 className="text-2xl font-display font-bold text-on-surface">{operation.supplierName}</h3>
-              <p className="text-on-surface/60 font-medium">{operation.type} • {operation.date}</p>
+              <p className="text-on-surface/60 font-medium">Fac {operation.documentNumber} • {operation.amount}</p>
             </div>
           </div>
 
-          {/* Observations if any */}
+          <div className="flex flex-col gap-4">
+            {/* Fechas */}
+            <div className="p-4 bg-surface-container-low rounded-2xl flex justify-between items-center">
+              <div>
+                 <p className="text-[10px] uppercase font-bold tracking-wider text-on-surface/40 mb-1">Emitida</p>
+                 <p className="text-xs font-semibold">{operation.invoiceDate || operation.date}</p>
+              </div>
+              <div className="text-right">
+                 <p className="text-[10px] uppercase font-bold tracking-wider text-on-surface/40 mb-1">Recibida</p>
+                 <p className="text-xs font-semibold">{operation.receptionDate || operation.date}</p>
+              </div>
+            </div>
+            
+            {/* Líneas de Productos */}
+            <div className="p-4 bg-surface-container-low rounded-2xl w-full">
+              <p className="text-[10px] uppercase font-bold tracking-wider text-on-surface/40 mb-3">Líneas de Factura</p>
+              <div className="space-y-2">
+                 {lines.map((l, i) => (
+                   <div key={i} className="flex justify-between items-center border-b border-outline-variant/10 pb-2 last:border-0 last:pb-0">
+                     <span className="font-semibold text-sm">{l.productName}</span>
+                     <span className="text-xs text-on-surface/70 font-bold bg-surface-container-high px-2 py-1 rounded-md">{l.quantity}</span>
+                   </div>
+                 ))}
+                 {lines.length === 0 && (
+                   <div className="text-sm text-on-surface/40">Sin líneas de productos</div>
+                 )}
+              </div>
+            </div>
+          </div>
+
           {operation.observations && (
             <div className="p-4 bg-primary-fixed/10 rounded-2xl flex gap-3 border border-primary-fixed/20">
               <AlertTriangle className="text-primary-fixed w-5 h-5 shrink-0" />
@@ -99,65 +160,107 @@ export function OperationDetail({ operation, onClose, onUpdate }: OperationDetai
             </div>
           )}
 
-          {/* Info Grid */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="p-4 bg-surface-container-low rounded-2xl">
-              <p className="text-[10px] uppercase font-bold tracking-wider text-on-surface/40 mb-1">Estado</p>
-              <p className="font-semibold capitalize">{operation.status.replace('ready', 'Lista para pagar').replace('pending', 'En espera').replace('alert', 'Observada').replace('closed', 'Finalizada')}</p>
-            </div>
-            <div className="p-4 bg-surface-container-low rounded-2xl">
-              <p className="text-[10px] uppercase font-bold tracking-wider text-on-surface/40 mb-1">Monto</p>
-              <p className="font-semibold text-lg">{operation.amount || 'Sin cargar'}</p>
-            </div>
-          </div>
-
-          {/* Action Area based on status */}
           <div className="pt-4 border-t border-outline-variant/30">
-            {(operation.status === 'pending' || operation.status === 'alert') && (
+            {operation.status === 'pending' && (
               <div className="space-y-4">
-                <div>
-                  <label className="form-label">Monto de la Factura (USD)</label>
-                  <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface/40 font-bold">$</span>
-                    <input 
-                      type="number" 
-                      className="form-input pl-8" 
-                      placeholder="0.00"
-                      value={amount}
-                      onChange={(e) => setAmount(e.target.value)}
-                    />
-                  </div>
+                <p className="text-sm font-bold text-primary mb-2">Registrar Pago:</p>
+                
+                {/* Upload Section - Dual Options */}
+                <div className="p-4 border-2 border-dashed border-outline-variant rounded-2xl bg-surface-container-low text-center">
+                   
+                   {!file ? (
+                     <div className="grid grid-cols-2 gap-3 mb-2">
+                       {/* Camera Button */}
+                       <button type="button" onClick={() => cameraInputRef.current?.click()} className="flex flex-col items-center justify-center p-3 rounded-[20px] bg-primary/10 hover:bg-primary/20 text-primary transition-colors border border-primary/20">
+                         <Camera className="w-8 h-8 mb-2" />
+                         <span className="text-xs font-bold leading-tight">Tomar<br/>Foto</span>
+                       </button>
+                       {/* File Button */}
+                       <button type="button" onClick={() => fileInputRef.current?.click()} className="flex flex-col items-center justify-center p-3 rounded-[20px] bg-surface-container-high hover:bg-surface-container-highest transition-colors border border-outline-variant/50">
+                         <Image className="w-8 h-8 mb-2 text-on-surface/60" />
+                         <span className="text-xs font-bold leading-tight text-on-surface/80">Subir<br/>Archivo</span>
+                       </button>
+                     </div>
+                   ) : (
+                     <div className="pb-3 pt-1">
+                        <CheckCircle className="w-8 h-8 text-secondary mx-auto mb-2" />
+                        <p className="text-sm font-bold text-on-surface truncate px-4">{file.name}</p>
+                        <button onClick={() => setFile(null)} className="text-xs text-error font-bold mt-2 hover:underline">Quitar y seleccionar otro</button>
+                     </div>
+                   )}
+                   
+                   {/* Hidden Inputs */}
+                   <input 
+                     ref={cameraInputRef}
+                     type="file" 
+                     accept="image/*"
+                     capture="environment" // Forces camera on mobile
+                     style={{ display: 'none' }}
+                     onChange={(e) => setFile(e.target.files ? e.target.files[0] : null)}
+                   />
+                   <input 
+                     ref={fileInputRef}
+                     type="file" 
+                     accept="image/*,application/pdf"
+                     style={{ display: 'none' }}
+                     onChange={(e) => setFile(e.target.files ? e.target.files[0] : null)}
+                   />
                 </div>
-                <button onClick={handleCargarFactura} className="btn-primary w-full gap-2">
-                  <ArrowRight className="w-5 h-5" />
-                  Cargar Factura y Validar
+                
+                <button 
+                  onClick={handleUploadPayment}
+                  disabled={loading || !file}
+                  className="btn-primary w-full py-3 gap-2 bg-gradient-to-r from-secondary to-secondary-container text-white disabled:opacity-50"
+                >
+                  <DollarSign className="w-5 h-5" />
+                  {loading ? 'Procesando comprobante...' : 'Marcar como Pagado y Subir'}
                 </button>
               </div>
             )}
 
             {operation.status === 'ready' && (
-              <div className="space-y-4">
-                <p className="text-sm text-center text-on-surface/50">¿Ya se realizó el pago?</p>
-                <button 
-                  onClick={handlePagar} 
-                  disabled={loading}
-                  className="btn-primary w-full gap-2 bg-gradient-to-r from-secondary to-secondary-container"
-                >
-                  <CheckCircle className="w-5 h-5" />
-                  {loading ? 'Procesando...' : 'Registrar Pago y Cerrar'}
-                </button>
+              <div className="text-center py-4 space-y-4">
+                <div className="w-12 h-12 bg-primary-fixed/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <FileCheck className="text-primary-fixed w-6 h-6" />
+                </div>
+                <div>
+                   <p className="font-bold text-on-surface">Pago Registrado</p>
+                   <p className="text-sm text-on-surface/60">A la espera de recibir el recibo correspondiente por parte del proveedor.</p>
+                </div>
+                {operation.paymentVoucherUrl && (
+                  <a href={operation.paymentVoucherUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-sm font-bold text-primary bg-primary/10 px-4 py-2 rounded-full hover:scale-105 transition-transform">
+                    <ExternalLink className="w-4 h-4" />
+                    Ver Comprobante Adjunto
+                  </a>
+                )}
               </div>
             )}
 
             {operation.status === 'closed' && (
-              <div className="text-center py-4">
+              <div className="text-center py-4 space-y-4">
                 <div className="w-12 h-12 bg-on-secondary-fixed/20 rounded-full flex items-center justify-center mx-auto mb-3">
                   <CheckCircle className="text-on-secondary-fixed w-6 h-6" />
                 </div>
-                <p className="font-bold text-on-surface">Operación Finalizada</p>
-                <p className="text-sm text-on-surface/60">El pago y comprobante están registrados.</p>
+                <div>
+                  <p className="font-bold text-on-surface">Factura Cerrada</p>
+                  <p className="text-sm text-on-surface/60">Recibo Asociado: <span className="font-bold text-on-surface">{operation.supplierReceiptNumber}</span></p>
+                </div>
+                {operation.paymentVoucherUrl && (
+                  <a href={operation.paymentVoucherUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-sm font-bold text-primary bg-primary/10 px-4 py-2 rounded-full hover:scale-105 transition-transform">
+                    <ExternalLink className="w-4 h-4" />
+                    Ver Comprobante de Pago
+                  </a>
+                )}
               </div>
             )}
+          </div>
+          
+          {/* Audit Log Display */}
+          <div className="mt-8 pt-4 border-t border-outline-variant/10 text-[10px] text-on-surface/40 flex flex-col gap-1 items-center justify-center">
+             <div className="flex items-center gap-1.5 font-medium">
+                <User className="w-3 h-3" /> Registrado por {operation.userEmail || 'Desconocido'}
+             </div>
+             <div>El {formatDateTime(operation.createdAt)}</div>
           </div>
         </div>
       </div>
