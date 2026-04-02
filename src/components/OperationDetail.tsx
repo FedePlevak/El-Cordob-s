@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
-import { X, DollarSign, FileCheck, CheckCircle, AlertTriangle, Upload, ExternalLink, Camera, Image, User } from 'lucide-react';
+import { X, DollarSign, FileCheck, CheckCircle, AlertTriangle, ExternalLink, Camera, Image, User } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { formatCurrency, formatNumber } from '../lib/utils';
 
 interface InvoiceItem {
   productId?: string;
@@ -117,7 +118,7 @@ export function OperationDetail({ operation, onClose, onUpdate }: OperationDetai
             </div>
             <div>
               <h3 className="text-2xl font-display font-bold text-on-surface">{operation.supplierName}</h3>
-              <p className="text-on-surface/60 font-medium">Fac {operation.documentNumber} • {operation.amount}</p>
+              <p className="text-on-surface/60 font-medium">Fac {operation.documentNumber} • {formatCurrency(operation.amount)}</p>
             </div>
           </div>
 
@@ -137,17 +138,17 @@ export function OperationDetail({ operation, onClose, onUpdate }: OperationDetai
             {/* Líneas de Productos */}
             <div className="p-4 bg-surface-container-low rounded-2xl w-full">
               <p className="text-[10px] uppercase font-bold tracking-wider text-on-surface/40 mb-3">Líneas de Factura</p>
-              <div className="space-y-2">
-                 {lines.map((l, i) => (
-                   <div key={i} className="flex justify-between items-center border-b border-outline-variant/10 pb-2 last:border-0 last:pb-0">
-                     <span className="font-semibold text-sm">{l.productName}</span>
-                     <span className="text-xs text-on-surface/70 font-bold bg-surface-container-high px-2 py-1 rounded-md">{l.quantity}</span>
-                   </div>
-                 ))}
-                 {lines.length === 0 && (
-                   <div className="text-sm text-on-surface/40">Sin líneas de productos</div>
-                 )}
-              </div>
+                <div className="space-y-2">
+                  {lines.map((l, i) => (
+                    <div key={i} className="flex justify-between items-center border-b border-outline-variant/10 pb-2 last:border-0 last:pb-0">
+                      <span className="font-semibold text-sm">{l.productName}</span>
+                      <span className="text-xs text-on-surface/70 font-bold bg-surface-container-high px-2 py-1 rounded-md">{formatNumber(l.quantity)}</span>
+                    </div>
+                  ))}
+                  {lines.length === 0 && (
+                    <div className="text-sm text-on-surface/40">Sin líneas de productos</div>
+                  )}
+                </div>
             </div>
           </div>
 
@@ -157,6 +158,21 @@ export function OperationDetail({ operation, onClose, onUpdate }: OperationDetai
               <p className="text-sm font-medium text-on-surface">
                 {operation.observations}
               </p>
+            </div>
+          )}
+
+          {operation.invoiceImageUrl && (
+            <div className="flex justify-center mb-4">
+              <a 
+                href={operation.invoiceImageUrl} 
+                target="_blank" 
+                rel="noreferrer"
+                className="btn-secondary w-full gap-2 border border-outline-variant/50 flex items-center justify-center font-bold"
+              >
+                <Image className="w-5 h-5 text-on-surface/50" />
+                Ver Foto de Factura
+                <ExternalLink className="w-4 h-4 text-on-surface/50 ml-auto" />
+              </a>
             </div>
           )}
 

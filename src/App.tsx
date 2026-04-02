@@ -1,11 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
-import { FileText, CheckCircle2, AlertCircle, Clock, Plus, Check, LogOut, UserCircle, DollarSign, CheckSquare, Square, FileCheck, Layers, Archive, Package, Truck, Camera, Image } from 'lucide-react';
+import { formatCurrency } from './lib/utils';
+import { FileText, CheckCircle2, Clock, Plus, Check, LogOut, UserCircle, DollarSign, CheckSquare, Square, Layers, Archive, Package, Truck, Camera, Image } from 'lucide-react';
 import { supabase } from './lib/supabase';
 import { LoginPage } from './components/LoginPage';
 import { ReceptionForm } from './components/ReceptionForm';
 import { OperationDetail } from './components/OperationDetail';
 import { ProductsManager } from './components/ProductsManager';
 import { SuppliersManager } from './components/SuppliersManager';
+import { SupplierStatement } from './components/SupplierStatement';
 
 export interface Supplier {
   id: string;
@@ -40,10 +42,12 @@ export interface Operation {
   observations?: string;
   expirationDate?: string;
   documentNumber?: string;
+  invoiceImageUrl?: string;
   paymentVoucherUrl?: string;
   supplierReceiptNumber?: string;
   userEmail?: string;
   createdAt?: string;
+  updatedAt?: string;
   product?: string;
   quantity?: string;
   items?: InvoiceItem[];
@@ -58,6 +62,7 @@ function App() {
   const [isProductsManagerOpen, setIsProductsManagerOpen] = useState(false);
   const [isSuppliersManagerOpen, setIsSuppliersManagerOpen] = useState(false);
   const [selectedOp, setSelectedOp] = useState<Operation | null>(null);
+  const [selectedSupplierForStatement, setSelectedSupplierForStatement] = useState<Supplier | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'a_pagar' | 'sin_recibo' | 'cuentas' | 'historial'>('a_pagar');
   
@@ -111,11 +116,13 @@ function App() {
           documentNumber: op.document_number,
           invoiceDate: op.invoice_date,
           receptionDate: op.reception_date,
+          invoiceImageUrl: op.invoice_image_url,
           paymentVoucherUrl: op.payment_voucher_url,
           supplierReceiptNumber: op.supplier_receipt_number,
           items: op.items || [],
           userEmail: op.user_email,
-          createdAt: op.created_at
+          createdAt: op.created_at,
+          updatedAt: op.updated_at
         })));
       }
     } catch (e) {
@@ -124,8 +131,30 @@ function App() {
     setLoading(false);
   };
 
-  const handleAddOperation = async (newOp: Operation) => {
-    const { id, ...operationData } = newOp;
+  const handleAddOperation = async (newOp: any) => {
+    const { id, imageFile, imagePreview, ...operationData } = newOp;
+    
+    let imageUrl = null;
+    
+    if (imageFile) {
+        // Upload image to Supabase Storage
+        const fileExt = imageFile.name.split('.').pop() || 'jpg';
+        const fileName = `invoice-${Date.now()}-${Math.random()}.${fileExt}`;
+  
+        const { error: uploadError } = await supabase.storage
+          .from('invoices')
+          .upload(fileName, imageFile);
+  
+        if (!uploadError) {
+          const { data } = supabase.storage
+            .from('invoices')
+            .getPublicUrl(fileName);
+          imageUrl = data.publicUrl;
+        } else {
+           console.error("Error uploading image:", uploadError);
+           alert("Hubo un problema al subir la foto, pero la factura se guardará.");
+        }
+    }
     
     const { data, error } = await supabase
       .from('operations')
@@ -140,6 +169,7 @@ function App() {
         amount: operationData.amount,
         observations: operationData.observations,
         document_number: operationData.documentNumber,
+        invoice_image_url: imageUrl,
         items: operationData.items,
         user_id: session?.user?.id,
         user_email: session?.user?.email
@@ -160,11 +190,13 @@ function App() {
         documentNumber: data[0].document_number,
         invoiceDate: data[0].invoice_date,
         receptionDate: data[0].reception_date,
+        invoiceImageUrl: data[0].invoice_image_url,
         paymentVoucherUrl: data[0].payment_voucher_url,
         supplierReceiptNumber: data[0].supplier_receipt_number,
         items: data[0].items || [],
         userEmail: data[0].user_email,
-        createdAt: data[0].created_at
+        createdAt: data[0].created_at,
+        updatedAt: data[0].updated_at
       }, ...operations]);
     }
   };
@@ -182,6 +214,7 @@ function App() {
         document_number: updatedOp.documentNumber,
         invoice_date: updatedOp.invoiceDate,
         reception_date: updatedOp.receptionDate,
+        invoice_image_url: updatedOp.invoiceImageUrl,
         payment_voucher_url: updatedOp.paymentVoucherUrl,
         supplier_receipt_number: updatedOp.supplierReceiptNumber,
         items: updatedOp.items
@@ -328,18 +361,24 @@ function App() {
           <div>
             <h2 className="text-xl font-display font-bold mb-6">Deudas Activas (A Pagar)</h2>
             <div className="space-y-4">
-              {suppliers.map(sup => {
-                const totalDebt = operations
-                  .filter(o => o.supplierId === sup.id && o.status === 'pending')
-                  .reduce((sum, o) => {
-                    const price = parseFloat(o.amount?.replace(/[^0-9.]/g, '') || '0');
-                    return sum + price;
-                  }, 0);
-                  
-                if (totalDebt === 0) return null;
-
-                return (
-                  <div key={sup.id} className="logistics-card flex items-center gap-4 bg-surface-container-low">
+              {suppliers
+                .map(sup => {
+                  const totalDebt = operations
+                    .filter(o => o.supplierId === sup.id && o.status === 'pending')
+                    .reduce((sum, o) => {
+                      const price = parseFloat(o.amount?.replace(/[^0-9.]/g, '') || '0');
+                      return sum + price;
+                    }, 0);
+                  return { sup, totalDebt };
+                })
+                .filter(item => item.totalDebt > 0)
+                .sort((a, b) => b.totalDebt - a.totalDebt)
+                .map(({ sup, totalDebt }) => (
+                  <div 
+                    key={sup.id} 
+                    className="logistics-card flex items-center gap-4 bg-surface-container-low cursor-pointer hover:scale-[1.02] transition-transform shadow-sm"
+                    onClick={() => setSelectedSupplierForStatement(sup)}
+                  >
                     <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-primary/10 text-primary font-black">
                       {sup.initials}
                     </div>
@@ -348,13 +387,12 @@ function App() {
                       <p className="text-sm text-on-surface/50">Plazo pago: {sup.payment_term || 0}d</p>
                     </div>
                     <div className="text-right">
-                      <span className="font-display font-bold text-xl text-tertiary">
-                        U$S {totalDebt.toFixed(2)}
+                      <span className="font-display font-bold text-xl text-red-600">
+                        {formatCurrency(totalDebt)}
                       </span>
                     </div>
                   </div>
-                );
-              })}
+                ))}
             </div>
           </div>
         ) : (
@@ -479,7 +517,7 @@ function App() {
                       <div className="flex-1 min-w-0">
                         <div className="flex justify-between items-start">
                           <h3 className="font-bold text-on-surface group-hover:text-primary transition-colors truncate">{op.supplierName}</h3>
-                          <span className="text-sm font-black font-display text-on-surface">{op.amount}</span>
+                          <span className="text-sm font-black font-display text-on-surface">{formatCurrency(op.amount)}</span>
                         </div>
                         <p className="text-sm text-on-surface/50 truncate flex items-center justify-between">
                           <span className="truncate">Fac {op.documentNumber} • {productLabel}</span>
@@ -562,6 +600,14 @@ function App() {
           operation={selectedOp}
           onClose={() => setSelectedOp(null)}
           onUpdate={handleUpdateOperation}
+        />
+      )}
+
+      {selectedSupplierForStatement && (
+        <SupplierStatement
+          supplier={selectedSupplierForStatement}
+          operations={operations}
+          onClose={() => setSelectedSupplierForStatement(null)}
         />
       )}
     </div>

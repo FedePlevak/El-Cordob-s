@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { X, Check, Plus, Trash2, ChevronDown, Package } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, Check, Plus, Trash2, ChevronDown, Package, Camera, Image as ImageIcon } from 'lucide-react';
+import { formatCurrency } from '../lib/utils';
 
 interface Supplier {
   id: string;
@@ -40,6 +41,9 @@ export function ReceptionForm({ isOpen, suppliers, products, onClose, onAdd, onA
   const [receptionDate, setReceptionDate] = useState(new Date().toISOString().split('T')[0]);
   const [amount, setAmount] = useState('');
   const [observations, setObservations] = useState('');
+  
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   // Multiple Lines State
   const [items, setItems] = useState<InvoiceItem[]>([
@@ -83,9 +87,11 @@ export function ReceptionForm({ isOpen, suppliers, products, onClose, onAdd, onA
       documentNumber,
       invoiceDate,
       receptionDate,
-      amount: amount.toString().startsWith('U$S') ? amount : `U$S ${amount}`,
+      amount: amount.replace(/[^0-9.]/g, ''),
       observations,
-      items: validItems
+      items: validItems,
+      imageFile,
+      imagePreview
     };
 
     onAdd(newOperation);
@@ -104,6 +110,8 @@ export function ReceptionForm({ isOpen, suppliers, products, onClose, onAdd, onA
     setReceptionDate(new Date().toISOString().split('T')[0]);
     setItems([{ id: Date.now().toString(), productId: '', productName: '', quantity: '' }]);
     setActiveDropdownId(null);
+    setImageFile(null);
+    setImagePreview(null);
   };
 
   const updateItem = (id: string, field: keyof InvoiceItem, value: string) => {
@@ -121,6 +129,18 @@ export function ReceptionForm({ isOpen, suppliers, products, onClose, onAdd, onA
 
   const addItem = () => setItems([...items, { id: Date.now().toString(), productId: '', productName: '', quantity: '' }]);
   const removeItem = (id: string) => setItems(items.filter(i => i.id !== id));
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setImagePreview(event.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-0 sm:p-4">
@@ -246,8 +266,7 @@ export function ReceptionForm({ isOpen, suppliers, products, onClose, onAdd, onA
              </div>
              
              <div className="space-y-3">
-               {items.map((item, index) => {
-                  const pInfo = products.find(p => p.id === item.productId);
+               {items.map((item) => {
                   const isDropdownOpen = activeDropdownId === item.id;
                   
                   return (
@@ -343,6 +362,35 @@ export function ReceptionForm({ isOpen, suppliers, products, onClose, onAdd, onA
               value={observations}
               onChange={(e) => setObservations(e.target.value)}
             />
+          </div>
+
+          <div>
+             <label className="form-label">Foto de la Factura (Opcional)</label>
+             {imagePreview ? (
+                <div className="relative rounded-2xl overflow-hidden border-2 border-outline-variant/20 bg-surface-container-low aspect-video flex items-center justify-center">
+                   <img src={imagePreview} alt="Vista previa de factura" className="max-w-full max-h-full object-contain" />
+                   <button 
+                     type="button" 
+                     onClick={() => { setImageFile(null); setImagePreview(null); }}
+                     className="absolute top-2 right-2 w-8 h-8 rounded-full bg-surface text-on-surface shadow-md flex items-center justify-center hover:bg-error hover:text-white transition-colors"
+                   >
+                      <Trash2 className="w-4 h-4" />
+                   </button>
+                </div>
+             ) : (
+                <div className="flex gap-3">
+                   <label className="flex-1 py-4 border-2 border-dashed border-outline-variant/40 rounded-2xl flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-surface-container-low transition-colors text-on-surface/60">
+                      <Camera className="w-6 h-6" />
+                      <span className="text-[10px] font-bold uppercase tracking-wider">Cámara</span>
+                      <input type="file" accept="image/*" capture="environment" className="hidden" onChange={handleImageChange} />
+                   </label>
+                   <label className="flex-1 py-4 border-2 border-dashed border-outline-variant/40 rounded-2xl flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-surface-container-low transition-colors text-on-surface/60">
+                      <ImageIcon className="w-6 h-6" />
+                      <span className="text-[10px] font-bold uppercase tracking-wider">Galería</span>
+                      <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+                   </label>
+                </div>
+             )}
           </div>
 
           <button 

@@ -1,6 +1,7 @@
 import { X, FileText, ArrowDownRight, ArrowUpRight } from 'lucide-react';
 import { Supplier, Operation } from '../App';
 import { useMemo } from 'react';
+import { formatCurrency } from '../lib/utils';
 
 interface SupplierStatementProps {
   supplier: Supplier;
@@ -56,8 +57,6 @@ export function SupplierStatement({ supplier, operations, onClose }: SupplierSta
 
   const totalDebt = movements.length > 0 ? movements[movements.length - 1].balance : 0;
 
-  const formatCurrency = (val: number) => `U$S ${Math.abs(val).toFixed(2)}`;
-
   return (
     <div className="fixed inset-0 z-[60] flex flex-col bg-surface sm:p-4">
       <div className="hidden sm:block absolute inset-0 bg-on-surface/40 backdrop-blur-sm" onClick={onClose} />
@@ -75,7 +74,7 @@ export function SupplierStatement({ supplier, operations, onClose }: SupplierSta
 
         <div className="p-6 shrink-0 bg-surface-container-low border-b border-outline-variant/10">
           <p className="text-[10px] font-bold text-on-surface/50 uppercase tracking-widest mb-1">Saldo Actual</p>
-          <div className="text-4xl font-display font-black text-tertiary">
+          <div className={`text-4xl font-display font-black ${totalDebt > 0 ? 'text-red-600' : totalDebt < 0 ? 'text-green-600' : 'text-on-surface/50'}`}>
             {formatCurrency(totalDebt)}
           </div>
         </div>
@@ -83,7 +82,7 @@ export function SupplierStatement({ supplier, operations, onClose }: SupplierSta
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3">
           {movements.map((m) => (
             <div key={m.id} className="bg-surface-container-low p-4 rounded-2xl flex items-center gap-4 hover:shadow-md transition-shadow">
-               <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${m.type === 'invoice' ? 'bg-error/10 text-error' : 'bg-primary/10 text-primary'}`}>
+               <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${m.type === 'invoice' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
                  {m.type === 'invoice' ? <ArrowUpRight className="w-5 h-5" /> : <ArrowDownRight className="w-5 h-5" />}
                </div>
                
@@ -95,11 +94,11 @@ export function SupplierStatement({ supplier, operations, onClose }: SupplierSta
                </div>
                
                <div className="text-right shrink-0">
-                 <p className={`font-bold font-display text-sm ${m.type === 'invoice' ? 'text-error' : 'text-primary'}`}>
-                   {m.amount > 0 ? '+' : '-'}{formatCurrency(m.amount)}
+                 <p className={`font-bold font-display text-sm ${m.type === 'invoice' ? 'text-red-600' : 'text-green-600'}`}>
+                   {formatCurrency(m.amount, true)}
                  </p>
-                 <p className="text-xs font-semibold text-on-surface/50 mt-0.5">
-                   Saldo: {m.balance < 0 ? '-' : ''}{formatCurrency(m.balance)}
+                 <p className={`text-xs font-semibold mt-0.5 ${m.balance > 0 ? 'text-red-600/70' : m.balance < 0 ? 'text-green-600/70' : 'text-on-surface/50'}`}>
+                   Saldo: {formatCurrency(m.balance)}
                  </p>
                </div>
             </div>

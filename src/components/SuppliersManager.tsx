@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Truck, Check, Trash2, Edit2, CreditCard } from 'lucide-react';
+import { X, Truck, Check, Edit2, CreditCard } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { Supplier } from '../App';
 
@@ -44,12 +44,7 @@ export function SuppliersManager({ isOpen, onClose, suppliers, refreshData }: Su
     setLoading(false);
   };
 
-  const handleDelete = async (id: string) => {
-    if (confirm('¿Seguro que deseas eliminar este proveedor? Sus facturas asociadas podrían perder la referencia al nombre.')) {
-      await supabase.from('suppliers').delete().eq('id', id);
-      refreshData();
-    }
-  };
+  // handleDelete removed as it is safely commented out in the UI
 
   const resetForm = () => {
     setEditingId(null);
