@@ -600,7 +600,7 @@ function App() {
         </button>
       </nav>
       
-      {isAdmin && (
+      {isApproved && (
         <button onClick={() => setIsFormOpen(true)} className="fixed bottom-24 right-6 w-16 h-16 bg-gradient-to-br from-primary to-primary-container rounded-[20px] shadow-xl shadow-primary/30 flex items-center justify-center text-white z-50 transition-all hover:scale-110 active:scale-95 group overflow-hidden">
           <Plus className="w-9 h-9 relative z-10" />
         </button>
