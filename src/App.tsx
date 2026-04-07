@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
-import { formatCurrency } from './lib/utils';
-import { FileText, CheckCircle2, Clock, Plus, Check, LogOut, UserCircle, DollarSign, CheckSquare, Square, Layers, Archive, Package, Truck, Camera, Image, ShieldCheck, Clock3 } from 'lucide-react';
+import { useState, useEffect, useRef, useMemo } from 'react';
+import { formatCurrency, formatNumber } from './lib/utils';
+import { FileText, CheckCircle2, Clock, Plus, Check, LogOut, UserCircle, DollarSign, CheckSquare, Square, Layers, Archive, Package, Truck, Camera, Image, ShieldCheck, Clock3, X } from 'lucide-react';
 import { supabase } from './lib/supabase';
 import { LoginPage } from './components/LoginPage';
 import { ReceptionForm } from './components/ReceptionForm';
@@ -15,6 +15,7 @@ export interface Supplier {
   name: string;
   initials: string;
   payment_term?: number;
+  created_at?: string;
 }
 
 export interface Product {
@@ -78,6 +79,19 @@ function App() {
   const fileInputRefBatch = useRef<HTMLInputElement>(null);
   const cameraInputRefBatch = useRef<HTMLInputElement>(null);
 
+  const [exchangeRate, setExchangeRate] = useState<number | null>(null);
+  const [loadingRate, setLoadingRate] = useState(false);
+
+  const selectedInvoicesTotal = useMemo(() => {
+    return Array.from(selectedInvoicesIds).reduce((acc, id) => {
+      const op = operations.find(o => o.id === id);
+      if (!op || !op.amount) return acc;
+      return acc + parseFloat(op.amount.replace(/[^0-9.]/g, '') || '0');
+    }, 0);
+  }, [selectedInvoicesIds, operations]);
+
+  const totalInPesos = exchangeRate ? selectedInvoicesTotal * exchangeRate : 0;
+
   const isAdmin = session?.user?.email === 'fedeplevak@gmail.com';
 
   useEffect(() => {
@@ -89,6 +103,8 @@ function App() {
         setLoading(false);
       }
     });
+
+    fetchExchangeRate();
 
     const {
       data: { subscription },
@@ -107,8 +123,26 @@ function App() {
     return () => subscription.unsubscribe();
   }, []);
 
+  const fetchExchangeRate = async () => {
+    setLoadingRate(true);
+    try {
+      const response = await fetch('https://uy.dolarapi.com/v1/cotizaciones/usd');
+      const data = await response.json();
+      if (data.compra && data.venta) {
+        const avg = (data.compra + data.venta) / 2;
+        setExchangeRate(avg);
+      } else if (data.venta) {
+        setExchangeRate(data.venta);
+      }
+    } catch (error) {
+      console.error("Error fetching exchange rate:", error);
+    } finally {
+      setLoadingRate(false);
+    }
+  };
+
   const fetchUserProfile = async (userId: string) => {
-    const { data } = await supabase.from('profiles').select('*').eq('id', userId).single();
+    const { data } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle();
     if (data) setUserProfile(data);
   };
 
@@ -244,6 +278,17 @@ function App() {
     setSelectedOp(null);
   };
 
+  const handleDeleteOperation = async (id: string) => {
+    const { error } = await supabase.from('operations').delete().eq('id', id);
+    if (error) {
+      console.error('Error deleting operation:', error);
+      alert(`Error al eliminar: ${error.message}`);
+      return;
+    }
+    setOperations(prev => prev.filter(op => op.id !== id));
+    setSelectedOp(null);
+  };
+
   const submitBatchReceipt = async () => {
     if (!receiptNumberBatch) {
       alert("Ingrese el número de recibo del proveedor");
@@ -346,10 +391,24 @@ function App() {
   };
 
   const filteredOperations = () => {
+    let filtered: Operation[] = [];
     switch (activeTab) {
-      case 'a_pagar': return operations.filter(o => o.status === 'pending');
-      case 'sin_recibo': return operations.filter(o => o.status === 'ready');
-      case 'historial': return operations.filter(o => o.status === 'closed');
+      case 'a_pagar': 
+        filtered = operations.filter(o => o.status === 'pending');
+        filtered.sort((a, b) => {
+          const daysA = calculateDaysRemaining(a) ?? 9999;
+          const daysB = calculateDaysRemaining(b) ?? 9999;
+          return daysA - daysB;
+        });
+        return filtered;
+      case 'sin_recibo': 
+        filtered = operations.filter(o => o.status === 'ready');
+        filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        return filtered;
+      case 'historial': 
+        filtered = operations.filter(o => o.status === 'closed');
+        filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        return filtered;
       default: return [];
     }
   };
@@ -466,9 +525,42 @@ function App() {
             
             {activeTab === 'a_pagar' && selectedInvoicesIds.size > 0 && (
               <div className="mb-4 bg-secondary/10 border border-secondary/30 p-4 rounded-2xl animate-in slide-in-from-top-4">
-                <p className="font-bold mb-4 flex items-center gap-2 text-secondary">
-                  <span className="bg-secondary text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">{selectedInvoicesIds.size}</span> Facturas seleccionadas para pago múltiple
-                </p>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                  <div className="flex items-center gap-3">
+                    <p className="font-bold flex items-center gap-2 text-secondary">
+                      <span className="bg-secondary text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">{selectedInvoicesIds.size}</span> Facturas seleccionadas
+                    </p>
+                    <button 
+                      onClick={() => setSelectedInvoicesIds(new Set())} 
+                      className="text-[10px] uppercase font-black text-secondary/40 hover:text-error flex items-center gap-1 transition-colors px-2 py-1 rounded-lg hover:bg-error/10"
+                    >
+                      <X className="w-3 h-3" /> Deseleccionar
+                    </button>
+                  </div>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <div className="bg-white border border-secondary/30 px-4 py-2 rounded-xl text-right shadow-sm">
+                      <p className="text-[10px] uppercase font-bold text-secondary/50 tracking-widest leading-none mb-1">TC BCU (Hoy)</p>
+                      <p className="text-sm font-display font-bold text-secondary">
+                        {loadingRate ? '...' : exchangeRate ? `$ ${exchangeRate.toFixed(3)}` : 'N/D'}
+                        <button onClick={fetchExchangeRate} className="ml-1 hover:text-primary transition-colors inline-flex align-middle">
+                          <Clock3 className="w-3 h-3" />
+                        </button>
+                      </p>
+                    </div>
+                    <div className="bg-secondary text-white px-4 py-2 rounded-xl text-right shadow-lg shadow-secondary/20">
+                      <p className="text-[10px] uppercase font-bold opacity-70 tracking-widest leading-none mb-1">Monto en Pesos</p>
+                      <p className="text-xl font-display font-black">
+                        $ {formatNumber(totalInPesos)}
+                      </p>
+                    </div>
+                    <div className="bg-white border border-secondary/30 px-4 py-2 rounded-xl text-right shadow-sm border-dashed">
+                      <p className="text-[10px] uppercase font-bold text-secondary/50 tracking-widest leading-none mb-1">Monto Total USD</p>
+                      <p className="text-xl font-display font-black text-secondary">
+                        {formatCurrency(selectedInvoicesTotal)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
                 
                 {!fileToUpload ? (
                   <div className="grid grid-cols-2 gap-3 mb-2">
@@ -565,8 +657,14 @@ function App() {
                         <p className="text-sm text-on-surface/50 truncate flex items-center justify-between">
                           <span className="truncate">Fac {op.documentNumber} • {productLabel}</span>
                           {op.status === 'pending' && daysRem !== null && (
-                            <span className={`font-bold text-xs px-2 py-0.5 rounded-full ml-2 shrink-0 ${daysRem < 0 ? 'bg-error/10 text-error' : daysRem < 3 ? 'bg-tertiary/10 text-tertiary' : 'bg-secondary/10 text-secondary'}`}>
-                              {daysRem < 0 ? `Vencida (${Math.abs(daysRem)}d)` : `Vence en ${daysRem}d`}
+                            <span className={`font-bold text-[10px] px-2 py-1 rounded-lg ml-2 shrink-0 uppercase tracking-tighter ${
+                              daysRem < 0 
+                                ? 'bg-red-600 text-white shadow-lg shadow-red-200 animate-pulse' 
+                                : daysRem < 3 
+                                  ? 'bg-amber-100 text-amber-700 border border-amber-200' 
+                                  : 'bg-green-100 text-green-700'
+                            }`}>
+                              {daysRem < 0 ? `VENCIDA (${Math.abs(daysRem)}D)` : `Vence en ${daysRem}d`}
                             </span>
                           )}
                         </p>
@@ -648,6 +746,7 @@ function App() {
           operation={selectedOp}
           onClose={() => setSelectedOp(null)}
           onUpdate={handleUpdateOperation}
+          onDelete={handleDeleteOperation}
         />
       )}
 

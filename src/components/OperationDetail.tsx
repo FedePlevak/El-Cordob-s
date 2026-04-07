@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { X, DollarSign, FileCheck, CheckCircle, AlertTriangle, ExternalLink, Camera, Image, User } from 'lucide-react';
+import { X, DollarSign, FileCheck, CheckCircle, AlertTriangle, ExternalLink, Camera, Image, User, Trash2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { formatCurrency, formatNumber } from '../lib/utils';
 
@@ -38,11 +38,13 @@ interface OperationDetailProps {
   operation: Operation | null;
   onClose: () => void;
   onUpdate: (updatedOp: Operation) => void;
+  onDelete?: (id: string) => void;
 }
 
-export function OperationDetail({ operation, onClose, onUpdate }: OperationDetailProps) {
+export function OperationDetail({ operation, onClose, onUpdate, onDelete }: OperationDetailProps) {
   const [loading, setLoading] = useState(false);
   const [file, setFile] = useState<File | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
@@ -102,9 +104,16 @@ export function OperationDetail({ operation, onClose, onUpdate }: OperationDetai
 
         <div className="flex items-center justify-between mt-4 mb-6">
           <h2 className="text-xl font-display font-bold">Detalle de Operación</h2>
-          <button onClick={onClose} className="text-on-surface/50">
-            <X className="w-6 h-6" />
-          </button>
+          <div className="flex items-center gap-1">
+             {onDelete && (
+                <button onClick={() => setShowDeleteConfirm(true)} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-error/10 text-on-surface/30 hover:text-error transition-colors">
+                   <Trash2 className="w-5 h-5" />
+                </button>
+             )}
+             <button onClick={onClose} className="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-high hover:bg-surface-container-highest transition-colors">
+               <X className="w-5 h-5 text-on-surface" />
+             </button>
+          </div>
         </div>
 
         <div className="space-y-6 flex-1">
@@ -281,6 +290,32 @@ export function OperationDetail({ operation, onClose, onUpdate }: OperationDetai
           </div>
         </div>
       </div>
+      
+      {showDeleteConfirm && (
+        <div className="absolute inset-0 bg-surface/95 backdrop-blur-md z-50 flex flex-col items-center justify-center p-6 text-center sm:rounded-[32px] rounded-t-[32px] animate-in fade-in duration-200">
+           <div className="w-20 h-20 bg-error/10 text-error rounded-full flex items-center justify-center mb-6 shadow-inner">
+              <Trash2 className="w-10 h-10" />
+           </div>
+           <h3 className="text-2xl font-display font-black mb-3">¿Eliminar Factura?</h3>
+           <p className="text-on-surface/60 mb-8 max-w-sm font-medium">
+              Esta acción borrará este registro de la base de datos de forma permanente e irrecuperable.
+           </p>
+           <div className="flex gap-3 w-full max-w-xs">
+              <button 
+                onClick={() => setShowDeleteConfirm(false)} 
+                className="flex-1 py-3.5 bg-surface-container-high hover:bg-surface-container-highest transition-colors rounded-xl font-bold text-on-surface"
+              >
+                Cancelar
+              </button>
+              <button 
+                onClick={() => onDelete && onDelete(operation.id)} 
+                className="flex-1 py-3.5 bg-red-600 hover:bg-red-700 transition-colors text-white rounded-xl font-bold shadow-lg shadow-red-200"
+              >
+                Sí, Eliminar
+              </button>
+           </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -28,12 +28,20 @@ export function SuppliersManager({ isOpen, onClose, suppliers, refreshData }: Su
       if (editingId) {
         await supabase
           .from('suppliers')
-          .update({ name, initials, payment_term: paymentTerm })
+          .update({ 
+            name, 
+            initials, 
+            payment_term: paymentTerm
+          })
           .eq('id', editingId);
       } else {
         await supabase
           .from('suppliers')
-          .insert([{ name, initials, payment_term: paymentTerm }]);
+          .insert([{ 
+            name, 
+            initials, 
+            payment_term: paymentTerm
+          }]);
       }
       refreshData();
       resetForm();
@@ -64,19 +72,51 @@ export function SuppliersManager({ isOpen, onClose, suppliers, refreshData }: Su
     <div className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center p-0 sm:p-4">
       <div className="absolute inset-0 bg-on-surface/40 backdrop-blur-sm" onClick={onClose} />
       
-      <div className="relative w-full max-w-lg bg-surface rounded-t-[32px] sm:rounded-[32px] p-6 shadow-2xl animate-in slide-in-from-bottom duration-300 max-h-[90vh] overflow-y-auto flex flex-col">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-display font-bold flex items-center gap-2">
+      <div className="relative w-full max-w-lg bg-surface rounded-t-[32px] sm:rounded-[32px] p-6 shadow-2xl animate-in slide-in-from-bottom duration-300 max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between mb-6 sticky top-0 bg-surface z-10 py-2">
+           <h2 className="text-2xl font-display font-bold flex items-center gap-2">
              <Truck className="w-6 h-6 text-primary" />
              Directorio de Proveedores
           </h2>
+
           <button onClick={onClose} className="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center">
             <X className="w-6 h-6" />
           </button>
         </div>
 
-        <form onSubmit={handleSave} className="bg-surface-container-low p-4 rounded-2xl mb-6">
-           <h3 className="font-bold mb-4">{editingId ? 'Editar Proveedor' : 'Nuevo Proveedor'}</h3>
+        <div className="space-y-2 mb-8">
+           <h3 className="font-bold text-on-surface/50 uppercase text-[10px] tracking-widest pl-2 mb-2">Proveedores Registrados ({suppliers.length})</h3>
+           {suppliers.map(s => (
+              <div key={s.id} className="p-3 bg-surface border border-outline-variant/10 rounded-2xl flex items-center justify-between shadow-sm">
+                 <div className="flex items-center gap-3 overflow-hidden">
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 font-black flex items-center justify-center shrink-0 text-primary">
+                       {s.initials}
+                    </div>
+                    <div className="truncate">
+                       <p className="font-bold text-sm truncate">{s.name}</p>
+                       <p className="text-[10px] font-bold text-on-surface/50 truncate">
+                         Crédito a {s.payment_term || 0} Días
+                       </p>
+                    </div>
+                 </div>
+                 <div className="flex items-center gap-1 shrink-0">
+                    <button onClick={() => editSupplier(s)} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container-high text-primary transition-colors">
+                       <Edit2 className="w-4 h-4" />
+                    </button>
+                    {/* Ocultamos por seguridad a menos que tenga lógica de borrar cascada limpia */}
+                 </div>
+              </div>
+           ))}
+           {suppliers.length === 0 && (
+             <p className="text-center text-on-surface/40 text-sm py-4">No hay proveedores registrados aún.</p>
+           )}
+        </div>
+
+        <form onSubmit={handleSave} className="bg-surface-container-low p-4 rounded-2xl border border-outline-variant/10 shadow-sm">
+           <h3 className="font-bold mb-4 flex items-center gap-2">
+              {editingId ? <Edit2 className="w-4 h-4" /> : <Check className="w-4 h-4" />} 
+              {editingId ? 'Editar Proveedor' : 'Nuevo Proveedor'}
+           </h3>
            
            <div className="grid grid-cols-3 gap-3 mb-3">
               <div className="col-span-2">
@@ -104,7 +144,7 @@ export function SuppliersManager({ isOpen, onClose, suppliers, refreshData }: Su
            
            <div className="flex gap-2">
               <button type="submit" disabled={loading} className="btn-primary flex-1 py-2 text-sm gap-2">
-                <Check className="w-4 h-4" /> {editingId ? 'Guardar Cambios' : 'Agregar'}
+                <Check className="w-4 h-4" /> {editingId ? 'Guardar Cambios' : 'Agregar Proveedor'}
               </button>
               {editingId && (
                 <button type="button" onClick={resetForm} className="px-4 py-2 rounded-xl bg-surface-container-high text-sm font-bold">
@@ -113,31 +153,6 @@ export function SuppliersManager({ isOpen, onClose, suppliers, refreshData }: Su
               )}
            </div>
         </form>
-
-        <div className="flex-1 overflow-y-auto space-y-2">
-           <h3 className="font-bold text-on-surface/50 uppercase text-[10px] tracking-widest pl-2 mb-2">Proveedores Registrados ({suppliers.length})</h3>
-           {suppliers.map(s => (
-              <div key={s.id} className="p-3 bg-surface border border-outline-variant/10 rounded-2xl flex items-center justify-between shadow-sm">
-                 <div className="flex items-center gap-3 overflow-hidden">
-                    <div className="w-10 h-10 rounded-xl bg-primary/10 font-black flex items-center justify-center shrink-0 text-primary">
-                       {s.initials}
-                    </div>
-                    <div className="truncate">
-                       <p className="font-bold text-sm truncate">{s.name}</p>
-                       <p className="text-[10px] font-bold text-on-surface/50 truncate">
-                         Crédito a {s.payment_term || 0} Días
-                       </p>
-                    </div>
-                 </div>
-                 <div className="flex items-center gap-1 shrink-0">
-                    <button onClick={() => editSupplier(s)} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container-high text-primary transition-colors">
-                       <Edit2 className="w-4 h-4" />
-                    </button>
-                    {/* Ocultamos por seguridad a menos que tenga lógica de borrar cascada limpia */}
-                 </div>
-              </div>
-           ))}
-        </div>
       </div>
     </div>
   );
