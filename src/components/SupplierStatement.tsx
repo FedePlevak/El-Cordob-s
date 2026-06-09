@@ -59,7 +59,7 @@ export function SupplierStatement({ supplier, operations, onClose }: SupplierSta
       // Factura (Debt increases)
       movs.push({
         id: `inv-${op.id}`,
-        date: op.receptionDate || op.date || op.createdAt || new Date().toISOString(),
+        date: op.invoiceDate || op.receptionDate || op.date || op.createdAt || new Date().toISOString(),
         description: `Factura N° ${op.documentNumber || 'S/N'}`,
         amount: price,
         type: 'invoice',

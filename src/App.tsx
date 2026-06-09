@@ -380,14 +380,57 @@ function App() {
     }
   };
 
-  const calculateDaysRemaining = (op: Operation) => {
+  const getExpirationDate = (op: Operation) => {
     const sup = suppliers.find(s => s.id === op.supplierId);
-    if (!sup || !op.receptionDate || sup.payment_term === undefined) return null;
-    const reception = new Date(op.receptionDate);
-    reception.setDate(reception.getDate() + sup.payment_term);
-    const msDiff = reception.getTime() - new Date().getTime();
-    const days = Math.ceil(msDiff / (1000 * 60 * 60 * 24));
+    const baseDate = op.invoiceDate || op.receptionDate;
+    if (!sup || !baseDate || sup.payment_term === undefined) return null;
+    
+    let expirationDate: Date;
+    if (baseDate.includes('-') && baseDate.split('-').length === 3 && !baseDate.includes('T')) {
+      const [year, month, day] = baseDate.split('-').map(Number);
+      expirationDate = new Date(year, month - 1, day);
+    } else {
+      expirationDate = new Date(baseDate);
+    }
+    
+    expirationDate.setDate(expirationDate.getDate() + sup.payment_term);
+    return expirationDate;
+  };
+
+  const calculateDaysRemaining = (op: Operation) => {
+    const expirationDate = getExpirationDate(op);
+    if (!expirationDate) return null;
+    
+    // Get current local date at midnight in Montevideo timezone
+    const now = new Date();
+    const formatter = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/Montevideo',
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric'
+    });
+    const parts = formatter.formatToParts(now);
+    const getPart = (type: string) => Number(parts.find(p => p.type === type)?.value);
+    const localToday = new Date(getPart('year'), getPart('month') - 1, getPart('day'));
+    
+    const msDiff = expirationDate.getTime() - localToday.getTime();
+    const days = Math.round(msDiff / (1000 * 60 * 60 * 24));
     return days;
+  };
+
+  const formatDateCompact = (dateStr?: string) => {
+    if (!dateStr) return '-';
+    const parts = dateStr.split('T')[0].split('-');
+    if (parts.length !== 3) return dateStr;
+    const [year, month, day] = parts;
+    return `${day}/${month}/${year}`;
+  };
+
+  const formatDateObj = (date: Date) => {
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
   };
 
   const filteredOperations = () => {
@@ -654,7 +697,7 @@ function App() {
                           <h3 className="font-bold text-on-surface group-hover:text-primary transition-colors truncate">{op.supplierName}</h3>
                           <span className="text-sm font-black font-display text-on-surface">{formatCurrency(op.amount)}</span>
                         </div>
-                        <p className="text-sm text-on-surface/50 truncate flex items-center justify-between">
+                        <p className="text-sm text-on-surface/50 truncate flex items-center justify-between mb-1">
                           <span className="truncate">Fac {op.documentNumber} • {productLabel}</span>
                           {op.status === 'pending' && daysRem !== null && (
                             <span className={`font-bold text-[10px] px-2 py-1 rounded-lg ml-2 shrink-0 uppercase tracking-tighter ${
@@ -668,6 +711,31 @@ function App() {
                             </span>
                           )}
                         </p>
+                        
+                        {/* Compact date layout */}
+                        {(() => {
+                          const expDate = getExpirationDate(op);
+                          const expDateStr = expDate ? formatDateObj(expDate) : '-';
+                          return (
+                            <div className="mt-2 grid grid-cols-3 gap-2 text-[10px] text-on-surface/60 border-t border-outline-variant/10 pt-2 pb-1">
+                              <div>
+                                <span className="block font-bold text-on-surface/40 uppercase tracking-tighter">Emisión</span>
+                                <span>{formatDateCompact(op.invoiceDate || op.date)}</span>
+                              </div>
+                              <div>
+                                <span className="block font-bold text-on-surface/40 uppercase tracking-tighter">Recepción</span>
+                                <span>{formatDateCompact(op.receptionDate || op.date)}</span>
+                              </div>
+                              <div>
+                                <span className="block font-bold text-on-surface/40 uppercase tracking-tighter">Vence</span>
+                                <span className={daysRem !== null && daysRem < 0 ? 'text-red-600 font-bold' : ''}>
+                                  {expDateStr}
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        })()}
+
                         {getStatusChip(op.status)}
                       </div>
                     </div>
